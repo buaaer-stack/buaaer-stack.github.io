@@ -20,29 +20,27 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.11.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="Denoising Diffusion Probabilistic Models(DDPM)论文地址 代码地址 基本公式 连续性随机变量函数的期望  $$E(f(x))&#x3D;\int_x p(x)f(x)dx \tag{1}$$  KL散度公式  $$D_{KL}(p(x)||q(x))&#x3D;E(log(\frac{p(x)}{q(x)})&#x3D;\int_x p(x)log\frac{p(x)}{q(x)}d">
+    <meta name="description" content="第一篇博客就这么水了，DDPM的公式太多了，推理难度也大，一些markdown公式无法渲染，直接影响了整体观感，所以就附上我对”DDPM的公式推导以及部分代码注释“这篇文章的pdf链接吧  pdf链接：https:&#x2F;&#x2F;github.com&#x2F;buaaer-stack&#x2F;github_code&#x2F;blob&#x2F;main&#x2F;DDPM&#x2F;DDPM%E5%85%AC%E5%BC%8F%E6%8E%A8%E7%90%8">
 <meta property="og:type" content="article">
-<meta property="og:title" content="DDPM公式推导与部分代码注释(1)">
+<meta property="og:title" content="DDPM公式推导与部分代码注释">
 <meta property="og:url" content="http://example.com/2022/08/11/ddpm/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="Denoising Diffusion Probabilistic Models(DDPM)论文地址 代码地址 基本公式 连续性随机变量函数的期望  $$E(f(x))&#x3D;\int_x p(x)f(x)dx \tag{1}$$  KL散度公式  $$D_{KL}(p(x)||q(x))&#x3D;E(log(\frac{p(x)}{q(x)})&#x3D;\int_x p(x)log\frac{p(x)}{q(x)}d">
+<meta property="og:description" content="第一篇博客就这么水了，DDPM的公式太多了，推理难度也大，一些markdown公式无法渲染，直接影响了整体观感，所以就附上我对”DDPM的公式推导以及部分代码注释“这篇文章的pdf链接吧  pdf链接：https:&#x2F;&#x2F;github.com&#x2F;buaaer-stack&#x2F;github_code&#x2F;blob&#x2F;main&#x2F;DDPM&#x2F;DDPM%E5%85%AC%E5%BC%8F%E6%8E%A8%E7%90%8">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20220808221940614.png">
 <meta property="article:published_time" content="2022-08-11T08:03:04.000Z">
-<meta property="article:modified_time" content="2022-08-11T08:28:03.742Z">
+<meta property="article:modified_time" content="2022-08-11T09:04:15.954Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20220808221940614.png">
 
 
 <link rel="canonical" href="http://example.com/2022/08/11/ddpm/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2022/08/11/ddpm/","path":"2022/08/11/ddpm/","title":"DDPM公式推导与部分代码注释(1)"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2022/08/11/ddpm/","path":"2022/08/11/ddpm/","title":"DDPM公式推导与部分代码注释"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>DDPM公式推导与部分代码注释(1) | Hexo</title>
+<title>DDPM公式推导与部分代码注释 | Hexo</title>
   
 
 
@@ -97,7 +95,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+    <div class="sidebar-inner sidebar-overview-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           Table of Contents
@@ -110,7 +108,6 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Denoising-Diffusion-Probabilistic-Models-DDPM"><span class="nav-number">1.</span> <span class="nav-text">Denoising Diffusion Probabilistic Models(DDPM)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%85%AC%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">基本公式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%89%A9%E6%95%A3%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.2.</span> <span class="nav-text">什么是扩散模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E5%90%91%E6%89%A9%E6%95%A3%E8%BF%87%E7%A8%8B"><span class="nav-number">1.3.</span> <span class="nav-text">前向扩散过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E6%A6%82%E7%8E%87%E5%85%AC%E5%BC%8F%E5%8F%82%E6%95%B0%E9%87%8D%E6%95%B4%E5%8C%96"><span class="nav-number">1.3.1.</span> <span class="nav-text">条件概率公式参数重整化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A9%E6%95%A3%E8%BF%87%E7%A8%8B%E7%9A%84%E8%81%94%E5%90%88%E5%88%86%E5%B8%83%E5%85%AC%E5%BC%8F"><span class="nav-number">1.3.2.</span> <span class="nav-text">扩散过程的联合分布公式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.3.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">1.4.</span> <span class="nav-text">参考资料</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -123,7 +120,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">2</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -176,12 +173,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="DDPM公式推导与部分代码注释(1) | Hexo">
+      <meta itemprop="name" content="DDPM公式推导与部分代码注释 | Hexo">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          DDPM公式推导与部分代码注释(1)
+          DDPM公式推导与部分代码注释
         </h1>
 
         <div class="post-meta-container">
@@ -193,7 +190,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2022-08-11 16:03:04 / Modified: 16:28:03" itemprop="dateCreated datePublished" datetime="2022-08-11T16:03:04+08:00">2022-08-11</time>
+      <time title="Created: 2022-08-11 16:03:04 / Modified: 17:04:15" itemprop="dateCreated datePublished" datetime="2022-08-11T16:03:04+08:00">2022-08-11</time>
     </span>
 
   
@@ -206,75 +203,10 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="Denoising-Diffusion-Probabilistic-Models-DDPM"><a href="#Denoising-Diffusion-Probabilistic-Models-DDPM" class="headerlink" title="Denoising Diffusion Probabilistic Models(DDPM)"></a>Denoising Diffusion Probabilistic Models(DDPM)</h1><p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2006.11239">论文地址</a></p>
-<p><a target="_blank" rel="noopener" href="https://github.com/lucidrains/denoising-diffusion-pytorch">代码地址</a></p>
-<h2 id="基本公式"><a href="#基本公式" class="headerlink" title="基本公式"></a>基本公式</h2><ul>
-<li>连续性随机变量函数的期望</li>
-</ul>
-<p>$$<br>E(f(x))=\int_x p(x)f(x)dx \tag{1}<br>$$</p>
-<ul>
-<li><code>KL</code>散度公式</li>
-</ul>
-<p>$$<br>D_{KL}(p(x)||q(x))=E(log(\frac{p(x)}{q(x)})=\int_x p(x)log\frac{p(x)}{q(x)}dx \tag{2}<br>$$</p>
-<ul>
-<li>参数重整化</li>
-</ul>
-<p>​        若希望从高斯分布 $\mathcal{N}(\mu,\mathbf{\sigma^2})$中采样，可以先从标准分布 $\mathcal{N}(0,\mathbf{I})$采样出 $z$，再得到 $\sigma*z+\mu$，这就是我们想要采样的结果。这样做的好处是将随机性转移到了$z$这个常量上，而$\sigma$和$\mu$则当作仿射变换网络的一部分。</p>
-<ul>
-<li>先验概率和后验概率<ul>
-<li>先验概率：根据以往经验和分析得到的概率,如全概率公式,它往往作为“由因求果”问题中的“因”出现，如$q(x_t|x_{t-1})$</li>
-<li>后验概率：指在得到“结果”的信息后重新修正的概率,是“执果寻因”问题中的“因”, 如$p(x_{t-1}|x_t)$</li>
-</ul>
-</li>
-</ul>
-<h2 id="什么是扩散模型"><a href="#什么是扩散模型" class="headerlink" title="什么是扩散模型"></a>什么是扩散模型</h2><p>相较于 GANs, VAEs 与 Normalizing Flows 等生成式模型，扩散模型（Diffusion  Model）的思路非常简单：向数据中逐步地加入随机噪声，然后学习其逆向过程，希望最终能够从噪声中重建所需的数据样本 ——  有意思的地方在于，我们可以训练一个神经网络模型来学习逆向扩散过程。</p>
-<p><img src="C:\Users\wangc\AppData\Roaming\Typora\typora-user-images\image-20220808221940614.png" alt="image-20220808221940614"></p>
-<center style="font-size:14px;color:#000;text-decoration:underline">Fig 1. DDPM前向逆向过程</center> 
-
-<p>在逆向扩散的每一步，神经网络模型的输入是当前的样本$x_t$和加噪程度<code>t</code>，想一想预期输出可以是什么呢？有多种可能：比如采取最粗暴的一种做法，即一步到位，要求模型直接对$x_0$进行预测，发现实验效果不佳；想一下扩散的样子… 逐步地，渐渐地变化，因此扩散模型要求对去噪的下一个状态进行预测，即对$x_{t-1}$进行预测。而在实际实验的过程中，作者发现：先让模型对去噪过程中的噪声$\epsilon$进行预测，再通过相关计算得到$x_{t-1}$会有更好的效果。</p>
-<h2 id="前向扩散过程"><a href="#前向扩散过程" class="headerlink" title="前向扩散过程"></a>前向扩散过程</h2><p>给定在真实数据分布（训练数据集）上的数据点（一张图片），$x_0$ ~ $q(x_0)$，前向过程就是有限<code>T</code>步内不断给数据点加入随机噪声（高斯噪声），这个加噪过程形成中间序列$x_1,x_2,···,x_T$。<code>T</code>越大，效果越好，但是会增加训练难度以及采样（去噪）的时间（扩散模型的缺点就是从随机噪声去噪的时间太长），因此选择一个合适的<code>T</code>满足要求（要求$\beta$很小）即可。在每次加噪程度$\beta$是超参数，参数<code>T</code>以及$\beta$序列生成算法决定了$\beta$，如果没有特殊说明，本篇文章的<code>T</code>为1000。$\beta$在训练之前就已经确定，这个超参满足：<br>$$<br>0&lt;\beta_1&lt;\beta_2&lt;···&lt;\beta_T&lt;1<br>$$<br>$\beta_i$与T有以下关系：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 一种是线性变化，一种是余弦变化，可以根据需要选择</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">linear_beta_schedule</span>(<span class="params">timesteps</span>):</span><br><span class="line">    scale = <span class="number">1000</span> / timesteps</span><br><span class="line">    beta_start = scale * <span class="number">0.0001</span></span><br><span class="line">    beta_end = scale * <span class="number">0.02</span></span><br><span class="line">    <span class="keyword">return</span> torch.linspace(beta_start, beta_end, timesteps, dtype = torch.float64)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cosine_beta_schedule</span>(<span class="params">timesteps, s = <span class="number">0.008</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    cosine schedule</span></span><br><span class="line"><span class="string">    as proposed in https://openreview.net/forum?id=-NEXDKk8gZ</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    steps = timesteps + <span class="number">1</span></span><br><span class="line">    x = torch.linspace(<span class="number">0</span>, timesteps, steps, dtype = torch.float64)</span><br><span class="line">    alphas_cumprod = torch.cos(((x / timesteps) + s) / (<span class="number">1</span> + s) * math.pi * <span class="number">0.5</span>) ** <span class="number">2</span></span><br><span class="line">    alphas_cumprod = alphas_cumprod / alphas_cumprod[<span class="number">0</span>]</span><br><span class="line">    betas = <span class="number">1</span> - (alphas_cumprod[<span class="number">1</span>:] / alphas_cumprod[:-<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">return</span> torch.clip(betas, <span class="number">0</span>, <span class="number">0.999</span>)</span><br></pre></td></tr></table></figure>
-
-<p>由$\beta$可以写出条件概率公式：<br>$$<br>q(x_t|x_{t-1}) = \mathcal{N}(x_t; \sqrt{1-\beta_t}x_{t-1}, \beta_t\mathbf{I}) \tag{3}<br>$$</p>
-<h3 id="条件概率公式参数重整化"><a href="#条件概率公式参数重整化" class="headerlink" title="条件概率公式参数重整化"></a>条件概率公式参数重整化</h3><p>​        对$\mathcal{N}(\mu,\mathbf{\sigma^2})$采样操作是不可导的，所以无法使用梯度下降，因此可以先从一个高斯分布$\mathcal{N}(0,\mathbf{I})$上进行采样，而$\mu$和$\sigma$在放射变化中可导，这样就相当于在采样操作上可以进行反向传播，这个过程实际上就是参数重整化。$q(x_t)|x_{t-1}$的采样过程等价于：<br>$$<br>x_t=\sqrt{1-\beta_t}x_{t-1}+\sqrt{\beta_t}z_{t-1} \tag{4}<br>$$<br>其中$z_{t-1}$是独立随机变量$z_{t-1}$~$\mathcal{N}(0,\mathbf{I})$，保证采样的随机性。上面这个式子不存在可训练参数，所以<code>DDPM</code>的前向过程是不需要进行训练，通过递推或者迭代便可以通过$x_0$以及$\beta$得出$x_t$。在这里设$\alpha_t=1-\beta_t$，$x_t$关于$x_0$的显式表达式的推理过程如下：</p>
-<p>$$<br>\begin {align}</p>
-<p>x_t&amp;=\sqrt{1-\beta_{t}}x_{t-1}+\sqrt{\beta_t}z_{t-1} \<br>&amp;=\sqrt{\alpha_{t}}x_{t-1}+\sqrt{1-\alpha_t}z_{t-1} \<br>&amp;=\sqrt{\alpha_{t}\alpha_{t-1}}x_{t-2}+\sqrt{1-\alpha_t\alpha_{t-1}}z_{t-2} \<br>&amp;=··· \<br>&amp;=\sqrt{\tilde{\alpha}_t}x_0+\sqrt{1-\tilde{\alpha}_t}z<br>\end {align}         \tag{5}<br>$$<br>最终得出$q(x_t|x_0)=\mathcal{N}(x_t,\sqrt{\tilde{\alpha}_t}x_0,{1-\tilde{\alpha}_t}\mathbf{I})$，$\tilde{\alpha}<em>t=\prod</em>{i=1}^T\alpha_i$，这么做的好处是可以加速$x_t$的生成速度，当然根据公式(3)，可以从$x_0-&gt;x_1-&gt;x_2-&gt;···-&gt;x_t$，计算难度与计算时间都会变的更大。因此在接下来的代码注释中，直接讲解公式(5)的生成方式。</p>
-<p><strong>代码注释</strong></p>
-<ul>
-<li>首先通过<code>beta_schedule</code>得到beta序列，这里的<code>timesteps=T=1000</code></li>
-<li>然后通过$\alpha_i$以及$\tilde{\alpha}_i$与<code>\beta_i</code>之间的关系，得出相应序列。<code>alphas = 1. - betas</code>好理解，torch.cumprod是将该之前的项累乘，<code>alphas_cumprod</code>的每一项对应$\tilde{\alpha}_i$，<code>alphas_cumprod_prev</code>是取$\tilde{\alpha}$下标<code>0~T-2</code>项作为这个序列的<code>1-T-1</code>，第一项为1，具体形式为<code>1,alphas_cumprod[0],alphas_cumprod[1],···,alphas_cumprod[T-2]</code>。</li>
-<li><code>sqrt_alphas_cumprod</code><del>$\sqrt{\tilde{\alpha}}$， <code>sqrt_one_minus_alphas_cumprod</code></del>$\sqrt{1-\tilde{\alpha}}$， <code>log_one_minus_alphas_cumprod</code>~$log(1-\tilde{\alpha}）$，<code>sqrt_recip_alphas_cumprod</code> ~ $\sqrt{\frac{1}{\tilde{\alpha}}}$， <code>sqrt_recipm1_alphas_cumprod</code> ~ $\sqrt{\frac{1}{\tilde{\alpha}}-1}$， </li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> beta_schedule == <span class="string">&#x27;linear&#x27;</span>:</span><br><span class="line">    betas = linear_beta_schedule(timesteps)</span><br><span class="line"><span class="keyword">elif</span> beta_schedule == <span class="string">&#x27;cosine&#x27;</span>:</span><br><span class="line">    betas = cosine_beta_schedule(timesteps)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="keyword">raise</span> ValueError(<span class="string">f&#x27;unknown beta schedule <span class="subst">&#123;beta_schedule&#125;</span>&#x27;</span>)</span><br><span class="line">alphas = <span class="number">1.</span> - betas</span><br><span class="line">alphas_cumprod = torch.cumprod(alphas, axis=<span class="number">0</span>)</span><br><span class="line">alphas_cumprod_prev = F.pad(alphas_cumprod[:-<span class="number">1</span>], (<span class="number">1</span>, <span class="number">0</span>), value = <span class="number">1.</span>)</span><br><span class="line">register_buffer(<span class="string">&#x27;sqrt_alphas_cumprod&#x27;</span>, torch.sqrt(alphas_cumprod))</span><br><span class="line">register_buffer(<span class="string">&#x27;sqrt_one_minus_alphas_cumprod&#x27;</span>, torch.sqrt(<span class="number">1.</span> - alphas_cumprod))</span><br><span class="line">register_buffer(<span class="string">&#x27;log_one_minus_alphas_cumprod&#x27;</span>, torch.log(<span class="number">1.</span> - alphas_cumprod))</span><br><span class="line">register_buffer(<span class="string">&#x27;sqrt_recip_alphas_cumprod&#x27;</span>, torch.sqrt(<span class="number">1.</span> / alphas_cumprod))</span><br><span class="line">register_buffer(<span class="string">&#x27;sqrt_recipm1_alphas_cumprod&#x27;</span>, torch.sqrt(<span class="number">1.</span> / alphas_cumprod - <span class="number">1</span>))</span><br></pre></td></tr></table></figure>
-
-<p>下面是从$x_0$生成的$x_t$的代码</p>
-<ul>
-<li>首先是<code>extract</code>，这个函数十分重要，在代码中出现的频率非常高，其作用是选取特定下标<code>t</code>的信息并转换成特定维度。因为<code>DDPM</code>无论是前向还是逆向都会遵循一个长度为1000的时间序列，使用这个函数可以较为轻松该时间点对应的权重或者序列。</li>
-<li><code>q_sample</code>的实际作用就是返回$q(x_t|x_0)$的采样结果，<code>extract(self.sqrt_alphas_cumprod, t, x_start.shape)</code>返回的是$\sqrt{\tilde{\alpha}_t}$，<code>extract(self.sqrt_one_minus_alphas_cumprod, t, x_start.shape)</code>返回的是$\sqrt{1-\tilde{\alpha_t}}$，注意下标<code>t</code>和参数列表中的<code>t</code>是相同的。</li>
-<li><code>noise</code>就是在标准正太分布上采样生成的与<code>x_start</code>的维度形状完全相同的<code>tensor</code>，<code>return</code>的结果就是$q(x_t|x_0)$</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">extract</span>(<span class="params">a, t, x_shape</span>):</span><br><span class="line">    b, *_ = t.shape</span><br><span class="line">    out = a.gather(-<span class="number">1</span>, t)</span><br><span class="line">    <span class="keyword">return</span> out.reshape(b, *((<span class="number">1</span>,) * (<span class="built_in">len</span>(x_shape) - <span class="number">1</span>)))      <span class="comment">#为了提取第t列的索引</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">q_sample</span>(<span class="params">self, x_start, t, noise=<span class="literal">None</span></span>):    <span class="comment"># q(x_t|x_0) 公式（4）</span></span><br><span class="line">        noise = default(noise, <span class="keyword">lambda</span>: torch.randn_like(x_start))</span><br><span class="line">        <span class="keyword">return</span> (</span><br><span class="line">            extract(self.sqrt_alphas_cumprod, t, x_start.shape) * x_start +</span><br><span class="line">            extract(self.sqrt_one_minus_alphas_cumprod, t, x_start.shape) * noise</span><br><span class="line">        )</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="扩散过程的联合分布公式"><a href="#扩散过程的联合分布公式" class="headerlink" title="扩散过程的联合分布公式"></a>扩散过程的联合分布公式</h3><p>根据马尔可夫链的无记忆性（下一个状态的概率分布只与当前状态有关），可以得到扩散过程联合概率分布：<br>$$<br>q(x_{1:T}|x_0)=\prod_{t=1}^{T}q(x_t|x_{t-1}) \tag{6}<br>$$<br>随着<code>t</code>不断增大<code>t-&gt;T</code>，$x_0$逐渐地丢失掉原有的特征，最终得到的$x_T$将会是一个标准正态分布$\mathcal{N}(0,\mathbf{I})$。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>前向扩散过程完全不含有可训练的参数，<strong>也即是说扩散模型的前向扩散过程不需要对网络进行训练。</strong>只要给定$x_0$和$\beta$, 通过不断迭代，就可以算出对应时刻<code>t</code>的$q(x_t)$分布。实际上在逆扩散的过程中网络也没有进行训练，我们做的仅仅是使用训练好的网络对噪声进行 “采样”。这也是扩散模型的特点之一：你可以将不同的扩散策略与不同的预测模型进行组合使用，只需提供一致的维度与超参数等信息（比如<code>T</code>值）。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><p><a target="_blank" rel="noopener" href="https://meg.chai.ac.cn/ddpm-megengine/">扩散模型（一）：DDPM 基本原理与 MegEngine 实现</a></p>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/530602852">DDPM解读（一）| 数学基础，扩散与逆扩散过程和训练推理方法</a></p>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://zaixiang.notion.site/Diffusion-Models-for-Deep-Generative-Learning-24ccc2e2a11e40699723b277a7ebdd64">Diffusion Models for Deep Generative Learning</a></p>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41895747/article/details/123660935?spm=1001.2014.3001.5501">DDPM代码详细解读(1)：数据集准备、超参数设置、loss设计、关键参数计算</a> </p>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1b541197HX?spm_id_from=333.1007.top_right_bar_window_default_collection.content.click&vd_source=16a6f1dc5256ea6c87d655524ec2f1d9">Diffusion Model扩散模型理论与完整PyTorch代码详细解读</a>      </p>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1cW4y1z7pp?spm_id_from=333.788.top_right_bar_window_default_collection.content.click">什么是 Diffusion Models/扩散模型？</a>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </p>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://kexue.fm/archives/9119">生成扩散模型漫谈（一）：DDPM = 拆楼 + 建楼        </a></p>
-</li>
-</ul>
+        <blockquote>
+<p>第一篇博客就这么水了，DDPM的公式太多了，推理难度也大，一些markdown公式无法渲染，直接影响了整体观感，所以就附上我对”DDPM的公式推导以及部分代码注释“这篇文章的pdf链接吧</p>
+</blockquote>
+<p>pdf链接：<a target="_blank" rel="noopener" href="https://github.com/buaaer-stack/github_code/blob/main/DDPM/DDPM%E5%85%AC%E5%BC%8F%E6%8E%A8%E7%90%86%E4%BB%A5%E5%8F%8A%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E8%AE%B2%E8%A7%A3.pdf">https://github.com/buaaer-stack/github_code/blob/main/DDPM/DDPM%E5%85%AC%E5%BC%8F%E6%8E%A8%E7%90%86%E4%BB%A5%E5%8F%8A%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E8%AE%B2%E8%A7%A3.pdf</a></p>
 
     </div>
 
@@ -293,9 +225,6 @@
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2022/08/11/DDPM%E5%85%AC%E5%BC%8F%E6%8E%A8%E5%AF%BC%E4%B8%8E%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A-2/" rel="next" title="DDPM公式推导与部分代码注释(2)">
-                  DDPM公式推导与部分代码注释(2) <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
