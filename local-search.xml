@@ -18,6 +18,8 @@
       
       <tag>计算机视觉</tag>
       
+      <tag>ECCV</tag>
+      
     </tags>
     
   </entry>
@@ -29,9 +31,15 @@
     <link href="/2022/08/22/%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%E4%B8%8B%E8%BD%BD%E5%BE%88%E6%85%A2%E6%80%8E%E4%B9%88%E5%8A%9E/"/>
     <url>/2022/08/22/%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%E4%B8%8B%E8%BD%BD%E5%BE%88%E6%85%A2%E6%80%8E%E4%B9%88%E5%8A%9E/</url>
     
-    <content type="html"><![CDATA[<blockquote><p>下载某<code>openAI</code>的预训练模型下载的非常慢，下载到一半也常常卡住，需要重新下载。真的很烦人。那如何解决呢？（以下方法在某些情况下可能无效）</p></blockquote><p><strong>方法一</strong>：找到网址，直接终端敲<code>wget url（预训练模型的网址，linux环境）</code></p><p><strong>方法二</strong>：骚操作，你不是从国外下载慢，那我就不在国内下载，使用<code>colab</code>连接谷歌云盘，在<code>colab</code>中写上<code>!wget url（预训练模型的网址）</code>，亲测快了十几倍，然后从谷歌云盘下载到本地或者服务器上，虽然走了不少弯路，但是确实省了不少时间，直接下载预训练模型真的龟速（QAQ）。</p>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>下载某<code>openAI</code>的预训练模型下载的非常慢，下载到一半也常常卡住，需要重新下载。真的很烦人。那如何解决呢？（以下方法在某些情况下可能无效）</p></blockquote><span id="more"></span><p><strong>方法一</strong>：找到网址，直接终端敲<code>wget url（预训练模型的网址，linux环境）</code></p><p><strong>方法二</strong>：骚操作，你不是从国外下载慢，那我就不在国内下载，使用<code>colab</code>连接谷歌云盘，在<code>colab</code>中写上<code>!wget url（预训练模型的网址）</code>，亲测快了十几倍，然后从谷歌云盘下载到本地或者服务器上，虽然走了不少弯路，但是确实省了不少时间，直接下载预训练模型真的龟速（QAQ）。</p>]]></content>
     
     
+    
+    <tags>
+      
+      <tag>技术</tag>
+      
+    </tags>
     
   </entry>
   
@@ -42,9 +50,17 @@
     <link href="/2022/08/11/ddpm/"/>
     <url>/2022/08/11/ddpm/</url>
     
-    <content type="html"><![CDATA[<blockquote><p>第一篇博客就这么水了，DDPM的公式太多了，推理难度也大，一些markdown公式无法渲染，直接影响了整体观感，所以就附上我对”DDPM的公式推导以及部分代码注释“这篇文章的pdf链接吧</p></blockquote><p>pdf链接：<a href="https://github.com/buaaer-stack/github_code/blob/main/DDPM/DDPM%E5%85%AC%E5%BC%8F%E6%8E%A8%E7%90%86%E4%BB%A5%E5%8F%8A%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E8%AE%B2%E8%A7%A3.pdf">https://github.com/buaaer-stack/github_code/blob/main/DDPM/DDPM%E5%85%AC%E5%BC%8F%E6%8E%A8%E7%90%86%E4%BB%A5%E5%8F%8A%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E8%AE%B2%E8%A7%A3.pdf</a></p>]]></content>
+    <content type="html"><![CDATA[<p>本人的第一篇博客，不过因为公式太多，<code>hexo</code>的渲染炸了，所以感兴趣的读者可以下载对应的pdf文件。</p><span id="more"></span><blockquote><p>第一篇博客就这么水了，DDPM的公式太多了，推理难度也大，一些markdown公式无法渲染，直接影响了整体观感，所以就附上我对”DDPM的公式推导以及部分代码注释“这篇文章的pdf链接吧</p></blockquote><p>pdf链接：<a href="https://github.com/buaaer-stack/github_code/blob/main/DDPM/DDPM%E5%85%AC%E5%BC%8F%E6%8E%A8%E7%90%86%E4%BB%A5%E5%8F%8A%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E8%AE%B2%E8%A7%A3.pdf">https://github.com/buaaer-stack/github_code/blob/main/DDPM/DDPM%E5%85%AC%E5%BC%8F%E6%8E%A8%E7%90%86%E4%BB%A5%E5%8F%8A%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E8%AE%B2%E8%A7%A3.pdf</a></p>]]></content>
     
     
+    
+    <tags>
+      
+      <tag>计算机视觉</tag>
+      
+      <tag>概率</tag>
+      
+    </tags>
     
   </entry>
   
