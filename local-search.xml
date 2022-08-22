@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>预训练模型下载很慢怎么办</title>
+    <link href="/2022/08/22/%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%E4%B8%8B%E8%BD%BD%E5%BE%88%E6%85%A2%E6%80%8E%E4%B9%88%E5%8A%9E/"/>
+    <url>/2022/08/22/%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%E4%B8%8B%E8%BD%BD%E5%BE%88%E6%85%A2%E6%80%8E%E4%B9%88%E5%8A%9E/</url>
+    
+    <content type="html"><![CDATA[<blockquote><p>下载某<code>openAI</code>的预训练模型下载的非常慢，下载到一半也常常卡住，需要重新下载。真的很烦人。那如何解决呢？（以下方法在某些情况下可能无效）</p></blockquote><p><strong>方法一</strong>：找到网址，直接终端敲<code>wget url（预训练模型的网址，linux环境）</code></p><p><strong>方法二</strong>：骚操作，你不是从国外下载慢，那我就不在国内下载，使用<code>colab</code>连接谷歌云盘，在<code>colab</code>中写上<code>!wget url（预训练模型的网址）</code>，亲测快了十几倍，然后从谷歌云盘下载到本地或者服务器上，虽然走了不少弯路，但是确实省了不少时间，直接下载预训练模型真的龟速（QAQ）。</p>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>DDPM公式推导与部分代码注释</title>
     <link href="/2022/08/11/ddpm/"/>
     <url>/2022/08/11/ddpm/</url>
