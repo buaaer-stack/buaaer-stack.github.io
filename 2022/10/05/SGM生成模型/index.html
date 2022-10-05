@@ -1,0 +1,763 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Buaaer-stack">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="这是Song Yang 博士的一篇工作，难度很大，这篇只是简单的讲一下思路和论文的具体内容。song yang这篇文章如果直接上手很难，所以我十分建议去看他的博客或者他的视频，讲的十分清楚，给人一种醍醐灌顶的感觉，唉，这就是大佬吗？我的这篇工作做的更多是翻译以及极少的细节解释。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SGM生成模型">
+<meta property="og:url" content="http://example.com/2022/10/05/SGM%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="Buaaer-stack&#39;s blog">
+<meta property="og:description" content="这是Song Yang 博士的一篇工作，难度很大，这篇只是简单的讲一下思路和论文的具体内容。song yang这篇文章如果直接上手很难，所以我十分建议去看他的博客或者他的视频，讲的十分清楚，给人一种醍醐灌顶的感觉，唉，这就是大佬吗？我的这篇工作做的更多是翻译以及极少的细节解释。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20221002104129489.png">
+<meta property="og:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20221002204410108.png">
+<meta property="og:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20221002212945811.png">
+<meta property="og:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20221002213148480.png">
+<meta property="og:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20221005191928574.png">
+<meta property="og:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20221002215105296.png">
+<meta property="og:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20221002222702387.png">
+<meta property="og:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20221002222902520.png">
+<meta property="og:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20221002225309584.png">
+<meta property="og:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20221002225847250.png">
+<meta property="og:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20221003104217234.png">
+<meta property="article:published_time" content="2022-10-05T10:46:16.000Z">
+<meta property="article:modified_time" content="2022-10-05T11:24:38.347Z">
+<meta property="article:author" content="Buaaer-stack">
+<meta property="article:tag" content="计算机视觉">
+<meta property="article:tag" content="图像生成">
+<meta property="article:tag" content="随机微分方程">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="c:/Users/wangc/AppData/Roaming/Typora/typora-user-images/image-20221002104129489.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>SGM生成模型 - Buaaer-stack&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"python"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Buaaer-stack&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                Links
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/2.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SGM生成模型"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-05 18:46" pubdate>
+          October 5, 2022 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.6k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          47 mins
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> views
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SGM生成模型</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>这是Song Yang 博士的一篇工作，难度很大，这篇只是简单的讲一下思路和论文的具体内容。song yang这篇文章如果直接上手很难，所以我十分建议去看他的<a target="_blank" rel="noopener" href="https://yang-song.net/blog/2021/score/">博客</a>或者他的<a target="_blank" rel="noopener" href="https://www.techbeat.net/talk-info?id=509&amp;utm_campaign=0413%E5%AE%8B%E9%A3%8F&amp;utm_medium=b%E7%AB%99%E8%8A%82%E9%80%89%E7%89%88&amp;utm_source=B%E7%AB%99&amp;gio_link_id=GR48LOXR">视频</a>，讲的十分清楚，给人一种醍醐灌顶的感觉，唉，这就是大佬吗？我的这篇工作做的更多是翻译以及极少的细节解释。</p>
+<span id="more"></span>
+<h2 id="预备知识"><a href="#预备知识" class="headerlink" title="预备知识"></a>预备知识</h2><h3 id="维纳过程-Wiener-process-、随机过程、马尔可夫过程"><a href="#维纳过程-Wiener-process-、随机过程、马尔可夫过程" class="headerlink" title="维纳过程(Wiener process)、随机过程、马尔可夫过程"></a>维纳过程(Wiener process)、随机过程、马尔可夫过程</h3><ul>
+<li>随机过程：如果一个变量的值以某种不确定的形式随时间变化，我们称这个变量服从某种随机过程。<ul>
+<li>不确定性：我参考的那篇知乎文章比较通俗易懂地给出了不确定性的理解，大学课程的区间估计，我没记错的话是置信区间那块的知识，实际上区间估计得到的并不是一个具体的值，而是一个值的集合。同样，随机过程随时间发生改变也就是时间定义了区间。</li>
+</ul>
+</li>
+<li>马尔可夫过程：一个特殊的随机过程，也就是未来的值只由当前的值所决定，变量的历史值以及变量从过去到现在的演变方式与未来预测无关。<ul>
+<li>不同时间的随机变量相互独立，历史值不会影响将来值，只与当前值有关，根据变量独立性的定义，两个变量没有影响毫无关系就说明两个变量独立。不过这个独立是不同时间段统一随机变量S的两个随机过程。</li>
+</ul>
+</li>
+<li>维纳过程：均值为0，方差为1的特殊马尔可夫过程。</li>
+</ul>
+<h2 id="生成模型的分类"><a href="#生成模型的分类" class="headerlink" title="生成模型的分类"></a>生成模型的分类</h2><ul>
+<li><p>隐式生成模型：表示采样的过程</p>
+<ul>
+<li>优点：结构比较灵活，采样的质量高</li>
+<li>缺点：训练困难，需要使用对抗训练的过程，没法计算似然函数，因此无法使用一个准则来判断这个隐式生成模型的好坏</li>
+</ul>
+</li>
+<li><p>显示生成模型（基于似然函数的模型）：直接表示分布的概率密度函数。比较常见，比如<code>VAE</code>，马尔科夫随机场，<code>flow model</code>等。</p>
+<ul>
+<li>优点：可以使用似然函数，训练，比较模型的好坏</li>
+<li>缺点：必须可以进行归一化，必须有一个结构上的限制来保证很快的计算似然函数，或者必须依靠替代目标来近似最大似然训练</li>
+</ul>
+</li>
+</ul>
+<h2 id="建模"><a href="#建模" class="headerlink" title="建模"></a>建模</h2><p>假定我们有一个数据集<code>x1</code>,<code>x2</code>,…<code>xn</code>，每个<code>xi</code>都是从一个潜在的数据分布$p_{\theta}(x)$中独立取得的，生成模型的目的就是能够完美建模这个数据分布$p_{\theta}(x)$，以便任意的采样生成符合这个分布的新数据。</p>
+<p>然后这里song yang选择了能量模型进行建模。我个人感觉建模方式可以有很多，可能这种建模纯粹是为了方便，或者该建模方式比较常见。我物理不太行，所以没有对这个奇怪的式子进行深入探索。</p>
+<script type="math/tex; mode=display">
+p_{\theta}(x)=\frac{e^{-f_{\theta}(x)}}{X_{\theta}} \tag{1}</script><p>在一个复杂系统中表示一个变量$x \in X$的概率$p(x)$，满足以下条件</p>
+<ul>
+<li>$p(x)&gt;0$</li>
+<li>所有变量概率之和为1</li>
+<li>方便计算</li>
+</ul>
+<p>所以根据以上性质想到指数函数（很大于零），在统计物理中吉布斯分布有着差不多的形式：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+P(x)&=\frac{e^{f(x)}}{\Sigma_{x\in X}e^{f(x)}} \tag{2} \\
+P(x)&=\frac{1}{Z}e^{f(x)}    \tag{3}
+\end{align}</script><p>其中$Z$是<code>normalize</code>项：</p>
+<p>不难理解$Z=X_{\theta}$。注意，归一化常数是对集合<code>X</code>中所有元素做$e^{f(x)}$的求和，所以$X_{\theta}$在$\theta$给定时便与<code>X</code>无关了。其中$E$表示状态的能量，之前的$f(x)$可以写成：</p>
+<script type="math/tex; mode=display">
+f(x)=-E(x)  \tag{4}</script><p>在机器学习中$E(x)$通常可以表示为似然函数或者对数似然或者值函数，所以有时候求最大似然就可以被表示为求最小能量。</p>
+<p>$Z_{\theta}$作为一个归一化常数，主要是为了满足：</p>
+<script type="math/tex; mode=display">
+\int p(x)=1 \tag{5}</script><p>为了训练$p_{\theta}$，我们要最大化似然。通常来说是计算：</p>
+<script type="math/tex; mode=display">
+max_{\theta} \Sigma \log{p_{\theta}(x_i)}</script><h2 id="去掉归一化常数"><a href="#去掉归一化常数" class="headerlink" title="去掉归一化常数"></a>去掉归一化常数</h2><p>一般而言，归一化常数很难计算，所以，为了使得最大似然训练变得可行，基于似然的模型通常使用如下两种方式，</p>
+<ul>
+<li>限制模型结构，使得$Z_{\theta}=1$</li>
+<li>近似规则化常数</li>
+</ul>
+<p>不过，上述两种方法都会让计算变得很困难。</p>
+<p>式（5）的限制严重影响了模型的结构，所以song yang希望能够去掉这个限制，因此引入了<code>score function</code>而非<code>density function</code>，来避开吃力这个规则化常数。<code>score function</code>定义为：</p>
+<script type="math/tex; mode=display">
+\bigtriangledown_x \log{p(x)} \tag{6}</script><p><img src="C:\Users\wangc\AppData\Roaming\Typora\typora-user-images\image-20221002104129489.png" srcset="/img/loading.gif" lazyload alt="image-20221002104129489"></p>
+<p>这种<code>score function</code>的模型我们就称为<code>score-based model</code>，用$s_{\theta}(x)$来表示，这种模型的目标式在无需考虑规则化常数项的情况下，使得$s_{\theta}(x) \approx \bigtriangledown_x \log{p(x)}$，这是因为：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+s_{theta}(x)&=\bigtriangledown_x \log{p(x)} \\
+&=-\bigtriangledown_x f_{\theta}(x)+\bigtriangledown_x Z_{\theta} \\
+&=-\bigtriangledown_x f_{\theta}(x)   \tag{7}
+\end{align}</script><p>实际上就是对$x$的偏分把不含$x$的优化掉了。</p>
+<h2 id="目标函数计算速度与精确度的权衡"><a href="#目标函数计算速度与精确度的权衡" class="headerlink" title="目标函数计算速度与精确度的权衡"></a>目标函数计算速度与精确度的权衡</h2><p>那么和<code>likelihood</code>类方法类似，我们可以最小化模型和数据分布之间的<code>Fisher divergence</code>来训练一个<code>score-based models</code>:</p>
+<script type="math/tex; mode=display">
+E_{p(x)}(||\bigtriangledown_x \log{p(x)}-s_{\theta}(x)||_2^2) \tag{8}</script><p>优点是通过采样分布而不是积分来衡量两个分布的差距，减少计算量。从数学上就是计算数据分布积分函数和积分函数模型之间的欧式距离，但是我们没有办法得到数据得分$\bigtriangledown_x \log{p(x)}$，所以无法直接优化<code>Fisher divergence</code>，现存一种<code>score matching</code>，通过分布积分的方法，将<code>Fisher divergence</code>转化为：</p>
+<script type="math/tex; mode=display">
+E_{p_data(x)}[\frac{1}{2}||s_{\theta(x)}||^2_2+trace(\bigtriangledown_x s_{\theta}(x))] \\
+\approx \frac{1}{N} \Sigma_{i=1}^{N}[\frac{1}{2}||s_{\theta(x_i)}||^2_2+trace(\bigtriangledown_x s_{\theta}(x))] \tag{9}</script><p>高维的数据还是不好计算。</p>
+<p>第一项只需要一次前向传播，要想计算雅可比矩阵的迹，要先进行一次前向传播，对于每一个对角元，然后反向传播，计算<code>n</code>次，进行加和，从而计算出迹的和。这个方法是可行的，就是太浪费计算资源了。</p>
+<p><img src="C:\Users\wangc\AppData\Roaming\Typora\typora-user-images\image-20221002204410108.png" srcset="/img/loading.gif" lazyload alt="image-20221002204410108"></p>
+<p>song yang引入了<code>Sliced score matching</code>。目的就是将高维的向量场做投影转为一维的向量场，如果数据的向量场和模型模拟的向量场是完全相同的。那么在这两个向量场在相同方向做投影得到的一维向量场必然也是相同的。反过来，低维向量场相同，返回去的高维向量场也是相同的。在改变方法的同时也提出了新的损失函数（切片<code>Fisher divergence</code>）：</p>
+<script type="math/tex; mode=display">
+\frac{1}{2}E_{p_v}E_{P_{data}(x)}[((v^T\bigtriangledown_x \log{p_{data}(x)}-v^T s_{\theta}(x))^2] \tag{10}</script><p>然后还是可以使用分步积分的方法进行简化：</p>
+<script type="math/tex; mode=display">
+E_{p_v}E_{p_{data}(x)}[v^T \bigtriangledown_x s_{\theta}(x)v+\frac{1}{2}(v^Ts_{\theta}(x))^2]  \tag{11}</script><p><img src="C:\Users\wangc\AppData\Roaming\Typora\typora-user-images\image-20221002212945811.png" srcset="/img/loading.gif" lazyload alt="image-20221002212945811"></p>
+<p>现在只需要一次后向计算（不过有$E_{p_v}$，因此还是会计算多次）。</p>
+<p><img src="C:\Users\wangc\AppData\Roaming\Typora\typora-user-images\image-20221002213148480.png" srcset="/img/loading.gif" lazyload alt="image-20221002213148480"></p>
+<p>使用<code>score matching</code>训练一个积分函数模型（<code>score function model</code>）表示数据分布向量场，如果能够从这个向量场进行采样，就可以得到新的样本，也就变成了一个生成器。如何进行采样？一般是使用<code>Langevin MCMC</code>做数据采样。</p>
+<h2 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h2><p>什么是<code>Langevin MCMC</code>?</p>
+<script type="math/tex; mode=display">
+\tilde{x}_{t+1}\leftarrow \tilde{x}_t+\frac{\epsilon}{2}s_{\theta}(\tilde{x}_t)+\sqrt{\epsilon}z_t \tag{12}</script><p>这里$z_t \sim N(0,1)$，当$\epsilon$趋于0时且$K$趋于无穷的时候，在常规条件下，$x_K$近似于实际数据分布$P(x)$的数据，两者的误差在$\epsilon$足够小且$K$足够大的时候，可以忽略不计。这就说明，可以是用郎之万采样来采样得到我们希望得到的和原始数据分布一摸一样的分布。</p>
+<p><img src="C:\Users\wangc\AppData\Roaming\Typora\typora-user-images\image-20221005191928574.png" srcset="/img/loading.gif" lazyload alt="image-20221005191928574"></p>
+<p>然而这种方法不太<code>work</code>。这有很大的原因来自于目标函数，主要是数据点较低的地方，即使差值很大，但是一做平均，对目标函数的影响就非常小了，所以没有办法探索数据密度较低的区域。song yang 的思路就是对数据点加噪声，让模型在<code>noisy data</code>上面进行训练。当噪声的幅度足够大时，可以填充低数据密度区域，以提高估计分的准确度。具体的，下图就是我们使用额外的高斯噪声对混合高斯噪声进行扰动的结果：</p>
+<p><img src="C:\Users\wangc\AppData\Roaming\Typora\typora-user-images\image-20221002215105296.png" srcset="/img/loading.gif" lazyload alt="image-20221002215105296"></p>
+<p>但是怎么选择合适的噪声来进进行扰动呢？更大的噪声可以明显的覆盖更多的低密度区域，提高<code>score estimation</code>的结果，但是会极大的损害数据本身，并使其偏离原始的数据分布。而微小的噪声扰动无法<code>cover</code>我们所希望覆盖的低密度区域，即使对原始数据的分布没有做出很大的改变。</p>
+<p>为了达到最佳的效果，song yang提出同时使用多尺度的噪声干扰。假设我们总是使用均值为0的各向同性高斯噪声来干扰数据，假设有<code>L</code>个扰动信号，标准差从小到大排列$\sigma_1&lt;\sigma_2&lt;…&lt;\sigma_L$，首先用每个扰动信号去扰动数据<code>P(x)</code>:</p>
+<script type="math/tex; mode=display">
+\Sigma_{i=1}^{N}\lambda(\sigma_i)E_{p_{\sigma_i}(x)}[||\bigtriangledown_x \log{p_{\sigma_i}(x)}-s_{\theta}(x,\sigma_i)||] \tag{13}</script><p>然后就是遵循上面的化简。可以认为是退火性的郎之万采样（主要是因为噪声的方差是逐渐变小的）。</p>
+<h2 id="随机微分方程"><a href="#随机微分方程" class="headerlink" title="随机微分方程"></a>随机微分方程</h2><p><img src="C:\Users\wangc\AppData\Roaming\Typora\typora-user-images\image-20221002222702387.png" srcset="/img/loading.gif" lazyload alt="image-20221002222702387"></p>
+<p>当噪声的规模和尺度趋于无穷时，本质上是在逐渐增加的噪声来干扰数据。在这种情况下，噪声干扰过程是一个随时间连续的随机过程。</p>
+<p><img src="C:\Users\wangc\AppData\Roaming\Typora\typora-user-images\image-20221002222902520.png" srcset="/img/loading.gif" lazyload alt="image-20221002222902520"></p>
+<p>可以使用一个随机微分方程来表示随机微分过程：</p>
+<script type="math/tex; mode=display">
+dx=f(x,t)dt+\sigma(t)dw \tag{14}</script><p>$w$可以看作是一个无穷小的白噪声（标准的布朗运动）。这实际上是常微分方程的一个推广。$f(x,t):R^d-&gt;R^d$代表漂移系数。$g(t)$表示的是扩散系数。这个随机微分方程的解是一组连续的随机变量$\{ x(t) \}_{t \in[0,T]}$，这些随机变量描述$t$时刻的轨迹。</p>
+<p>用$p_t(x)$表示$x(t)$的边缘概率密度函数。这里的$t\in[0,T]$可以类比为不同尺度下的噪声$i=1,2,…,L$；$p_t(x)$可以类比为$p_{\sigma_i}(x)$。这里，$p_0(x)=p(x)$代表原始数据分布（没有噪声干扰的情况）。在用随机过程的方法对$p(x)$干扰了足够长的时间$T$后，$p_T(x)$已经变成了一个简单的随机噪声分布。我们将其表示为一个<code>prior distribution（先验分布）</code>。</p>
+<p>使用均值为0，方差指数增长的高斯噪声对数据进行干扰，与之前加不同程度的高斯噪声相似。</p>
+<p>如果我们能够从高斯分布逆转扰动数据过程，就可以慢慢的把噪声消除掉，我们要做的就是把之前的<code>SDE</code>做一个时间反演。对于任意一个随机微分方程，都有一个逆向的随机微分方程。而原始的随机微分方程的逆：</p>
+<script type="math/tex; mode=display">
+dx=\sigma(t)dw \rightarrow dx=-\sigma^2(t)\bigtriangledown_x \log{p_{t}(x)}dt+\sigma(t)d\tilde{w} \tag{15}</script><p>首先我们不知道$\bigtriangledown_x \log{p_{t}(x)}$，所以我们要训练一个$s_{\theta}(x,t)$来模拟$\bigtriangledown_x \log{p_{t}(x)}$。因此我们的目标函数变为了：</p>
+<script type="math/tex; mode=display">
+E_{t\in \mu(0,T)}[\lambda(t)E_{p_t(x)}[||\bigtriangledown_x \log{p_{t}(x)}-s_{\theta}(x,t)||^2_2]] \tag{16}</script><p>然后将$s_{\theta}(x,t)$代入上式。</p>
+<script type="math/tex; mode=display">
+dx=-\sigma^2(t) s_{\theta}(x,t)dt+\sigma(t)d\tilde{w}  \tag{17}</script><p><img src="C:\Users\wangc\AppData\Roaming\Typora\typora-user-images\image-20221002225309584.png" srcset="/img/loading.gif" lazyload alt="image-20221002225309584"></p>
+<p>式（6）的<code>Inverse SDE</code>为：</p>
+<script type="math/tex; mode=display">
+dx=[f(x,t)-g^2(t)\bigtriangledown_x \log{p_{t}(x)}]dt+g(t)d\tilde{w} \tag{18}</script><p>同样也是用训练的模型进行替换。</p>
+<p><img src="C:\Users\wangc\AppData\Roaming\Typora\typora-user-images\image-20221002225847250.png" srcset="/img/loading.gif" lazyload alt="image-20221002225847250"></p>
+<p>为了求$s_{\theta}(x,t)$，其实使用式（5）就可以了，也是最大化一个<code>Fisher divergence</code>。</p>
+<p>这里的$\mu(0,T)$表示在$[0,T]$的均匀分布。使用$\lambda(t)\propto\frac{1}{E[||\nabla_{x(t)}|x(0)||_2^2]}$平衡不同时间内不同分数匹配损失的大小。当$\lambda(t)=g^2(t)$，<code>KL divergence</code>和<code>fisher divergence</code>产生了一定联系。</p>
+<script type="math/tex; mode=display">
+KL(p_0(x)||p_{\theta}(x))<=\frac{T}{2}E_{t\in \mu(0,T)}E_{p_t(x)}[\lambda(t)||\nabla \log{p_t(x)}-s_{\theta}(x,t)||_2^2]+KL(P_T||\pi) \tag{19}</script><p>这里只是对这个目标函数的估计。</p>
+<p>通过数值<code>SDE</code>求解器，我们可以估计<code>reverse SDE</code>，我们可以模拟<code>reverse</code>随机过程来用于生成样本，最简单的数值<code>SDE</code>求解器是用<code>Euler-Maruyama</code>方法，当将其应用到我们的<code>SDE</code>中，<code>Euler-Maryyama</code>方法使用有限时间步和小的高斯噪声去离散<code>SDE</code>。具体来讲，就是选择了<code>small</code>，<code>negative</code>的时间步进行初始化，然后按照以下方式迭代优化知道 $t\approx 0$：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+\Delta x &\leftarrow[f(x,t)-g^2(t)s_{\theta}(x,t)]\Delta t+g(t)\sqrt{|\Delta t|}z_t  \tag{20} \\ 
+x &\leftarrow x+\Delta x \\
+t &\leftarrow t+\Delta t
+
+\end{align}</script><p> 其中$z_t \sim N(0,1)$，其实<code>Euler-Maruyama</code>方法和<code>Langevin dynamics</code>方法很相似，都是通过高斯噪声扰动得分函数来更新$x$。</p>
+<p><img src="C:\Users\wangc\AppData\Roaming\Typora\typora-user-images\image-20221003104217234.png" srcset="/img/loading.gif" lazyload alt="image-20221003104217234"></p>
+<p><code>Repaint（2022）</code>那篇论文的方法其实就是来自于这篇（2021）。</p>
+<h3 id="将SDE转化为ODE（Probability-flow-ODE）"><a href="#将SDE转化为ODE（Probability-flow-ODE）" class="headerlink" title="将SDE转化为ODE（Probability flow ODE）"></a>将SDE转化为ODE（Probability flow ODE）</h3><p>考虑特殊情形，不加噪声了，也就是说$g(t)$始终为0，此时的<code>SDE</code>退化成了<code>ODE</code>，这个<code>ODE</code>叫做概率流<code>ODE</code>，由于这个常微分方程也需要神经网络进行模拟，所以对应一个神经<code>ODE</code>。为什么要特别研究方差为0的情形呢？因为此时传播过程不带噪声，从$x_0$到$x_T$是一个确定性变换，所以我们直接反向求解ODE就能得到由$x_T$变换为$x_0$的逆变换，这也是一个确定性变换中代入$\sigma_t=0$也可以发现前向和反向的方程是一样的）。这个过程和<a target="_blank" rel="noopener" href="https://spaces.ac.cn/tag/flow/">flow模型</a>是一致的（即通过一个可逆的变换将噪声变换成样本），所以概率流ODE允许我们将扩散模型的结果与flow模型相关结果对应起来，比如原论文提到概率流ODE允许我们做精确的似然计算、获得隐变量表征等，这些本质上都是flow模型的好处。由于flow模型的可逆性，它还允许我们在隐变量空间对原图做一些图片编辑等。另一方面，从$x_T$到$x_0$的变换由一个ODE描述，这意味着我们可以通过各种高阶的ODE数值算法来加速从$x_T$到$x_0$的变换过程。当然，原则上SDE的求解也有一些加速方法，但SDE的加速研究远远不如ODE的容易和深入。总的来说，相比SDE，ODE在理论分析和实际求解中都显得更为简单直接。</p>
+<p>使用概率流常微分方程的解法可以很大的提高采样速度。</p>
+<p>先验的似然函数和数据上的似然函数连续起来。这个积分很容易用数学解法进行求解，难度主要就是$\nabla s_{\theta}(x)$的迹，使用<code>sliced score matching</code>就可以进行求解。</p>
+<script type="math/tex; mode=display">
+\log{p_0(x)}=\log{p_T(x)}-\frac{1}{2}\int_0^T \sigma(t)^2trace(\nabla_xs_{\theta}(x,t))dt \tag{21}</script><h3 id="可控生成"><a href="#可控生成" class="headerlink" title="可控生成"></a>可控生成</h3><script type="math/tex; mode=display">
+dx=[f(x,t)-g^2(t) \nabla_x log_{p_t}(x|y)]dt+g(t)dw  \tag{22}</script><p>然后我们可以使用贝叶斯公式进行替换。</p>
+<script type="math/tex; mode=display">
+dx=[f(x,t)-g^2(t) \nabla_x log_{p_t}(x)-g^2(t)\nabla_x \log_{p_t}(y|x)]dt+g(t)dw \tag{23}</script><p>$y$是一个类别标签，$p_t(y|x)$是一个时间独立的分类器。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/402320649">随机过程、马尔可夫过程、维纳过程三者的联系与区别？</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">#计算机视觉</a>
+      
+        <a href="/tags/%E5%9B%BE%E5%83%8F%E7%94%9F%E6%88%90/">#图像生成</a>
+      
+        <a href="/tags/%E9%9A%8F%E6%9C%BA%E5%BE%AE%E5%88%86%E6%96%B9%E7%A8%8B/">#随机微分方程</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SGM生成模型</div>
+      <div>http://example.com/2022/10/05/SGM生成模型/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>Buaaer-stack</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>October 5, 2022</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>Licensed under</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/25/%E5%BA%A6%E9%87%8F%E5%AD%A6%E4%B9%A0/" title="度量学习">
+                        <span class="hidden-mobile">度量学习</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;Table of Contents</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>
