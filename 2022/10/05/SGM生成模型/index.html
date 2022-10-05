@@ -35,7 +35,7 @@
 <meta property="og:image" content="e:/blog/myblog/source/_posts/图片/image-20221002225847250.png">
 <meta property="og:image" content="e:/blog/myblog/source/_posts/图片/image-20221003104217234.png">
 <meta property="article:published_time" content="2022-10-05T10:46:16.000Z">
-<meta property="article:modified_time" content="2022-10-05T11:32:24.159Z">
+<meta property="article:modified_time" content="2022-10-05T11:35:48.677Z">
 <meta property="article:author" content="Buaaer-stack">
 <meta property="article:tag" content="计算机视觉">
 <meta property="article:tag" content="图像生成">
@@ -338,12 +338,12 @@
 </ul>
 </li>
 </ul>
-<h2 id="建模"><a href="#建模" class="headerlink" title="建模"></a>建模</h2><p>假定我们有一个数据集<code>x1</code>,<code>x2</code>,…<code>xn</code>，每个<code>xi</code>都是从一个潜在的数据分布$p_{\theta}(x)$中独立取得的，生成模型的目的就是能够完美建模这个数据分布$p_{\theta}(x)$，以便任意的采样生成符合这个分布的新数据。</p>
+<h2 id="建模"><a href="#建模" class="headerlink" title="建模"></a>建模</h2><p>假定我们有一个数据集<code>x1</code>,<code>x2</code>,…<code>xn</code>，每个<code>xi</code>都是从一个潜在的数据分布$p_{\theta}(x)$中独立取得的，生成模型的目的就是能够完美建模这个数据分布$ p_{\theta}(x) $，以便任意的采样生成符合这个分布的新数据。</p>
 <p>然后这里song yang选择了能量模型进行建模。我个人感觉建模方式可以有很多，可能这种建模纯粹是为了方便，或者该建模方式比较常见。我物理不太行，所以没有对这个奇怪的式子进行深入探索。</p>
 <script type="math/tex; mode=display">
 p_{\theta}(x)=\frac{e^{-f_{\theta}(x)}}{X_{\theta}} \tag{1}</script><p>在一个复杂系统中表示一个变量$x \in X$的概率$p(x)$，满足以下条件</p>
 <ul>
-<li>$p(x)&gt;0$</li>
+<li>$ p(x)&gt;0 $</li>
 <li>所有变量概率之和为1</li>
 <li>方便计算</li>
 </ul>
